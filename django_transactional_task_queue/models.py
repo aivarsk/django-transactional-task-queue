@@ -33,7 +33,12 @@ class Task(models.Model):
             with transaction.atomic():
                 task = (
                     cls.objects.select_for_update(skip_locked=True)
-                    .filter(failed=False, started=False, eta__lte=timezone.now(), queue=queue)
+                    .filter(
+                        failed=False,
+                        started=False,
+                        eta__lte=timezone.now(),
+                        queue=queue,
+                    )
                     .order_by("eta")
                     .first()
                 )
@@ -85,13 +90,15 @@ class Task(models.Model):
         ]
 
 
-class StartedTaskManager(models.Manager):
+class PendingTaskManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(started=True)
+        return (
+            super().get_queryset().filter(failed=False, started=False).order_by("eta")
+        )
 
 
-class StartedTask(Task):
-    objects = StartedTaskManager()
+class PendingTask(Task):
+    objects = PendingTaskManager()
 
     class Meta:
         proxy = True
