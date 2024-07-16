@@ -40,7 +40,7 @@ def _apply_async(
 
 
 class Signature:
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, func, args, kwargs):
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -53,7 +53,7 @@ class Signature:
     def delay(self):
         _apply_async(self.func, self.args, self.kwargs, **self.parameters)
 
-    def apply_async(self):
+    def apply_async(self, **kwargs):
         self.parameters.update(kwargs)
         _apply_async(self.func, self.args, self.kwargs, **self.parameters)
 

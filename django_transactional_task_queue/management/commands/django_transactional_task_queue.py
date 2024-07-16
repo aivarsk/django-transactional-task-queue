@@ -37,7 +37,5 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"Completed Task({task.pk})"))
                 task.delete()
             except Exception as exc:
-                self.stdout.write(
-                    self.style.SUCCESS(f"Failed Task({task.pk}): {exc!r}")
-                )
+                self.stdout.write(self.style.ERROR(f"Failed Task({task.pk}): {exc!r}"))
                 task.fail()

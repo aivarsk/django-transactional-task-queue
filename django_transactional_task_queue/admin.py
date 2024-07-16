@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 
-from django_transaction_task_queue.models import DirtyTask, FailedTask, PendingTask
+from django_transactional_task_queue.models import DirtyTask, FailedTask, PendingTask
 
 
 class PendingTaskAdmin(admin.ModelAdmin):
@@ -53,6 +53,7 @@ class DirtyTaskAdmin(admin.ModelAdmin):
         ("created_at", admin.DateFieldListFilter),
         ("started_at", admin.DateFieldListFilter),
     )
+    actions = ("force_retry",)
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -60,8 +61,8 @@ class DirtyTaskAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return True
 
-    @admin.action(description="Retry the task")
-    def force_check(self, request, queryset):
+    @admin.action(description="Retry selected tasks")
+    def force_retry(self, request, queryset):
         count = 0
         for task in queryset.iterator():
             count += 1
@@ -93,6 +94,7 @@ class FailedTaskAdmin(admin.ModelAdmin):
         ("created_at", admin.DateFieldListFilter),
         ("started_at", admin.DateFieldListFilter),
     )
+    actions = ("force_retry",)
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -100,8 +102,8 @@ class FailedTaskAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return True
 
-    @admin.action(description="Retry the task")
-    def force_check(self, request, queryset):
+    @admin.action(description="Retry selected tasks")
+    def force_retry(self, request, queryset):
         count = 0
         for task in queryset.iterator():
             count += 1
