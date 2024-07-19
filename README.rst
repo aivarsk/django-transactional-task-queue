@@ -11,4 +11,4 @@ A short and simple Celery replacement for my Django projects.
 * *No prefetching or visibility timeouts*. The worker picks the first available task and processes it.
 * *Dead letter queue* built in. You get access to failed tasks and can retry them.
 * *Django admin for monitoring.* You can view pending tasks, failed, and "dirty" (crashed in the middle of work). Failed and "dirty" tasks can be retried from the same Django admin.   
-    * Easy to get the metrics from Django shell and export to your favorite monitoring tool
+* *Easy to get the metrics* from Django shell and export to your favorite monitoring tool
