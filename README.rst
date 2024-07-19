@@ -3,7 +3,7 @@ Django Transaction Task Queue
 
 A short and simple Celery replacement for my Django projects.
 
-* *Database is the only backend." The task is a simple Django model, it uses the same transaction and connection as other models. No more ``transaction.on_commit`` hooks to schedule tasks.
+* *Database is the only backend.* The task is a simple Django model, it uses the same transaction and connection as other models. No more ``transaction.on_commit`` hooks to schedule tasks.
 * *Tasks do not produce any results* and there is no "result backend". If you need to store results, pass a unique key into the task and store the result in some DIY model.
 * *You can not wait on the response from the task*, there is no ``get`` or ``join`` to get the task result. I think a thread pool or process pool is better for those requirements.
 * *No workflows and chaining of jobs.*
