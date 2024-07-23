@@ -20,6 +20,20 @@ Celery API
 
 The main API is the Celery API (``shared_task``) with ``delay``, ``apply_async`` and ``s``. Just to make switching between implementations easier.
 
+.. code-block:: python
+  
+  from django_transactional_task_queue.celery import shared_task
+
+  @shared_task
+  def my_task(foo, bar=None):
+      ...
+
+.. code-block:: python
+  
+  my_task.delay(1,bar=2)
+  my_task.appy_async((1,2))
+  my_task.s(1,2).apply_async()
+
 
 Internals
 ---------
