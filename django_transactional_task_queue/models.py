@@ -16,7 +16,7 @@ class Task(models.Model):
     args = models.JSONField()
     kwargs = models.JSONField()
 
-    eta = models.DateTimeField(auto_now_add=True)
+    execute_at = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True, blank=True)
 
     retries = models.PositiveIntegerField(default=0)
@@ -36,10 +36,10 @@ class Task(models.Model):
                     .filter(
                         failed=False,
                         started=False,
-                        eta__lte=timezone.now(),
+                        execute_at__lte=timezone.now(),
                         queue=queue,
                     )
-                    .order_by("eta")
+                    .order_by("execute_at")
                     .first()
                 )
                 if not task:
@@ -55,7 +55,7 @@ class Task(models.Model):
 
     def lock(self):
         """Place a lock as an indicator that worker is still alive"""
-        Task.objects.select_for_update().filter(pk=self.pk)
+        Task.objects.select_for_update().only('id').get(pk=self.pk)
 
     def fail(self):
         self.started = False
@@ -69,8 +69,8 @@ class Task(models.Model):
         self.traceback = None
         self.retries = models.F("retries") + 1
         # Do not stay in the front of the queue
-        self.eta = timezone.now()
-        self.save(update_fields=["started", "failed", "traceback", "eta"])
+        self.execute_at = timezone.now()
+        self.save(update_fields=["started", "failed", "traceback", "retries", "execute_at"])
 
     def execute(self):
         last_dot = self.task.rindex(".")
@@ -83,8 +83,8 @@ class Task(models.Model):
     class Meta:
         indexes = [
             models.Index(
-                name="dttq_task_eta_queue_idx",
-                fields=("eta", "queue"),
+                name="dttq_task_execute_at_queue_idx",
+                fields=("execute_at", "queue"),
                 condition=models.Q(failed=False, started=False),
             )
         ]
@@ -93,7 +93,7 @@ class Task(models.Model):
 class PendingTaskManager(models.Manager):
     def get_queryset(self):
         return (
-            super().get_queryset().filter(failed=False, started=False).order_by("eta")
+            super().get_queryset().filter(failed=False, started=False).order_by("execute_at")
         )
 
 

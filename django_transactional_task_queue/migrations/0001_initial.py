@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ("task", models.CharField(max_length=256)),
                 ("args", models.JSONField()),
                 ("kwargs", models.JSONField()),
-                ("eta", models.DateTimeField(auto_now_add=True)),
+                ("execute_at", models.DateTimeField(auto_now_add=True)),
                 ("expires", models.DateTimeField(blank=True, null=True)),
                 ("retries", models.PositiveIntegerField(default=0)),
                 ("traceback", models.TextField(blank=True, null=True)),
@@ -39,8 +39,8 @@ class Migration(migrations.Migration):
                 "indexes": [
                     models.Index(
                         condition=models.Q(("failed", False), ("started", False)),
-                        fields=["eta", "queue"],
-                        name="dttq_task_eta_queue_idx",
+                        fields=["execute_at", "queue"],
+                        name="dttq_task_execute_at_queue_idx",
                     )
                 ],
             },

@@ -14,14 +14,14 @@ def _apply_async(
     args: tuple = None,
     kwargs: dict = None,
     countdown: float = None,
-    eta: datetime.datetime = None,
+    execute_at: datetime.datetime = None,
     expires: Union[float, datetime.datetime] = None,
     queue: str = None,
     ignore_result: bool = None,
     add_to_parent: bool = None,
 ):
     if countdown:
-        eta = timezone.now() + datetime.timedelta(seconds=int(countdown))
+        execute_at = timezone.now() + datetime.timedelta(seconds=int(countdown))
     if expires and isinstance(expires, (int, float)):
         expires = timezone.now() + datetime.timedelta(seconds=int(expires))
 
@@ -30,7 +30,7 @@ def _apply_async(
         task=".".join((inspect.getmodule(func).__name__, func.__name__)),
         args=args or [],
         kwargs=kwargs or {},
-        eta=eta,
+        execute_at=execute_at,
         expires=expires,
     )
     if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
