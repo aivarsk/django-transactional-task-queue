@@ -14,3 +14,30 @@ A short and simple Celery replacement for my Django projects.
 * *Django admin for monitoring.* You can view pending tasks, failed, and "dirty" (crashed in the middle of work). Failed and "dirty" tasks can be retried from the same Django admin.   
 * *Easy to get the metrics* from Django shell and export to your favorite monitoring tool
 * *Task records are removed after successful execution*. Unlike Celery SQLAlchemy's backend, records are removed so you don't have to care about archiving. It also keeps the table small, properly indexed and efficient.
+
+Celery API
+----------
+
+The main API is the Celery API (``shared_task``) with ``delay``, ``apply_async`` and ``s``. Just to make switching between implementations easier.
+
+
+Internals
+---------
+
+Adding a new task to the queue is just creating a new instance of the Task model.
+
+Execution a task is a bit more expensive:
+1. transaction: a task is picked up from a queue and the state is updated to "started"
+2. transaction: the task is locked, executed and deleted from the table. Failed tasks are marked as such and retried (based on configuration).
+
+This is a bit more expensive than necessary but:
+* we can recognize running tasks - the task is "started" and the row is locked
+* we can recognize "dirty" tasks that got killed or lost database connection in the middle - the task is "started" and the row is not locked
+
+Otherwise transaction could be rolled back and we would loose any evidence it got started
+
+Performance
+-----------
+
+A single process can execute around 150 dummy tasks per second which is more than enough. After years of struggling with Celery, correctness and observability are more important.
+On the other hand, to handle more "tasks" you probably want to store many events and have a task that processes them in batches.
